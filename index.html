@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Construction Auto Builder — V8.1.42a (Master Auto-Inject • Autosave • Export Pack • Polish)</title>
+
+<style>
+:root{
+  --bg:#0b0f16; --card:#101827; --card2:#0b111c; --line:#203047;
+  --text:#eaf2ff; --muted:#9db0c8; --accent:#5dd6ff;
+  --ok:#74ffb5; --warn:#ffd27a; --bad:#ff6a6a; --vio:#c89bff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:var(--bg);color:var(--text)}
+.wrap{max-width:1700px;margin:0 auto;padding:20px}
+h1{font-size:22px;margin:0 0 6px}
+h2{font-size:16px;margin:18px 0 8px}
+small{color:var(--muted)}
+.card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.col-3{grid-column:span 3}
+.col-6{grid-column:span 6}
+.col-12{grid-column:span 12}
+label{font-size:12px;color:var(--muted)}
+select,textarea,input{
+  width:100%;background:#0c1322;color:var(--text);
+  border:1px solid var(--line);border-radius:10px;padding:10px;
+}
+textarea{min-height:110px;resize:vertical}
+textarea:disabled{opacity:.55;cursor:not-allowed}
+select:disabled{opacity:.6;cursor:not-allowed}
+.btn{
+  background:linear-gradient(180deg,#162241,#0f1933);
+  color:var(--text);border:1px solid var(--line);
+  padding:10px 12px;border-radius:12px;cursor:pointer;
+}
+.btn.primary{border-color:#2c6cff;box-shadow:0 0 0 1px rgba(44,108,255,.15) inset}
+.btn.ok{border-color:#2b8a5f}
+.btn.warn{border-color:#8a6b2b}
+.btn.ghost{background:#0c1322}
+.badge{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line)}
+.badge.vio{color:var(--vio)}
+pre{background:#070b14;border:1px solid var(--line);border-radius:14px;padding:14px;overflow:auto;white-space:pre-wrap}
+.footer{opacity:.7;font-size:12px}
+.kv{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.kv span{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:6px 10px;border-radius:999px;background:#0c1322}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.warnbar{margin-top:10px;padding:10px;border-radius:12px;border:1px solid #3a2b2b;background:#140b0b;color:#ffd27a;display:none}
+.warnbar b{color:#ff6a6a}
+.smallpill{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#0c1322;color:var(--muted);font-size:11px}
+.logpre{min-height:120px;max-height:240px;overflow:auto}
+
+/* ===== Collapsible Output UI ===== */
+.outCard{padding:0; overflow:hidden}
+.outHead{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 12px;
+  background:linear-gradient(180deg,#0f172a,#0b1220);
+  border-bottom:1px solid var(--line);
+}
+.outTitle{
+  font-weight:700; letter-spacing:.3px; font-size:13px;
+  text-transform:uppercase; color:var(--text);
+}
+.outRight{display:flex; align-items:center; gap:10px}
+.outBtn{
+  background:#0c1322; border:1px solid var(--line);
+  color:var(--text); border-radius:999px; padding:6px 12px;
+  cursor:pointer; font-size:12px;
+}
+.outChevron{
+  width:34px; height:34px; border-radius:10px;
+  background:#0c1322; border:1px solid var(--line);
+  display:grid; place-items:center; cursor:pointer;
+  user-select:none;
+}
+.outChevron span{display:block; transform:rotate(0deg); transition:transform .18s ease}
+.outBody{display:none; padding:12px}
+.outCard.open .outBody{display:block}
+.outCard.open .outChevron span{transform:rotate(180deg)}
+.outPre{
+  margin:0; background:#070b14; border:1px solid var(--line);
+  border-radius:14px; padding:14px; white-space:pre-wrap; overflow:auto;
+}
+
+/* Section controls */
+.sectionBar{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end;
+  margin-top:10px
+}
+/* ===== Mobile Friendly Patch (V8.1.13) ===== */
+html,body{height:100%}
+.btn,select,input,textarea{touch-action:manipulation}
+pre, .outPre{word-break:break-word}
+
+.genSticky{position:relative}
+@media (max-width: 980px){
+  .wrap{padding:14px}
+  .row{grid-template-columns:repeat(6,1fr)}
+  .col-3{grid-column:span 3}
+  .col-6{grid-column:span 6}
+  .col-12{grid-column:span 6}
+}
+@media (max-width: 680px){
+  h1{font-size:18px}
+  h2{font-size:15px}
+  .wrap{padding:12px}
+  .card{padding:12px;border-radius:16px}
+  .row{grid-template-columns:1fr;gap:10px}
+  .col-3,.col-6,.col-12{grid-column:span 1}
+  label{font-size:12px}
+  select,textarea,input{padding:12px;border-radius:12px;font-size:14px}
+  textarea{min-height:120px}
+  .btn{width:100%;padding:12px 12px;border-radius:14px;font-size:14px}
+  .sectionBar{justify-content:stretch}
+  .sectionBar .btn{flex:1}
+  .kv{gap:8px}
+  .kv span{font-size:12px}
+  .outHead{flex-direction:column;align-items:stretch;gap:10px}
+  .outRight{justify-content:space-between}
+  .outBtn{padding:10px 14px;font-size:13px}
+  .outChevron{width:44px;height:44px;border-radius:14px}
+  .outPre, pre{padding:12px;font-size:12px}
+  .logpre{max-height:260px}
+  /* Sticky Generate (mobile) */
+  .genSticky{
+    position:sticky;
+    bottom:10px;
+    z-index:60;
+    border-color:#2c6cff;
+    box-shadow:0 12px 30px rgba(0,0,0,.45);
+  }
+}
+
+/* Toast */
+#toastHost{position:fixed;z-index:9999;inset:auto 14px 14px auto;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{min-width:180px;max-width:min(92vw,420px);background:rgba(16,24,39,.92);border:1px solid rgba(93,214,255,.22);
+  color:var(--text);padding:10px 12px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);
+  font-size:13px;line-height:1.25;opacity:0;transform:translateY(6px);transition:opacity .18s ease, transform .18s ease}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{border-color:rgba(116,255,181,.35)}
+.toast.warn{border-color:rgba(255,210,122,.40)}
+.toast.bad{border-color:rgba(255,106,106,.40)}
+@media (max-width:560px){
+  #toastHost{inset:auto 10px 90px auto;align-items:flex-end}
+  .toast{max-width:78vw}
+}
+
+.pill{display:flex;gap:8px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,0.02);color:var(--text)}
+.pill input{transform:scale(1.05)}
+
+/* Reset Header Button */
+.titlebar{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.titleleft{ display:flex; align-items:center; gap:10px; min-width:0; }
+.btn-reset-header{
+  flex:0 0 auto; padding:6px 10px; border-radius:10px;
+  border:1px solid rgba(255,106,106,0.55); background:rgba(255,106,106,0.08);
+  color:#ffd0d0; font-weight:700; font-size:12px; cursor:pointer;
+  transition:all .12s ease;
+}
+.btn-reset-header:hover{ background:rgba(255,106,106,0.14); border-color:rgba(255,106,106,0.75); }
+
+/* FINAL PREVIEW BLEED */
+.open-full-btn{
+  margin-left:auto; padding:6px 10px; border-radius:10px;
+  border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.04);
+  color:var(--text); font-weight:700; font-size:12px; cursor:pointer;
+}
+.open-full-btn:disabled{ opacity:.45; cursor:not-allowed; }
+
+/* Grid for pins */
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+@media(max-width:500px){ .grid2{ grid-template-columns:1fr; } }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <h1 class="titlebar">
+    <span class="titleleft">Construction Auto Builder <span class="badge vio">V8.1.42a</span></span>
+    <button class="btn-reset-header" id="resetAllBtn" type="button"><span data-i18n="btn_reset">Reset</span></button>
+  </h1>
+  <small>
+    V8.1.42a:
+    (1) Hard Enforcement + 5D Video.
+    (2) Master Standard Auto‑Inject (no preset needed).
+    (3) Autosave (LocalStorage) + Export Pack.
+    (0) Semi-Auto Smart Anchor (Offline Vision): Detects Road, Village, and Pools.
+    V8.1.13: Mobile-friendly responsive UI.
+    V8.1.8: HardLock badge truth.
+  </small>
+
+  <div class="card">
+    <div class="row">
+      <div class="col-3">
+        <label><span data-i18n="lbl_engine">Output Engine</span></label>
+        <select id="engine">
+          <option>Dreamina</option>
+          <option selected>VEO 3.1</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_category">Category (AUTO SYNC → Climate)</span></label>
+        <select id="category">
+          <option value="modern_tropical">Modern Tropical</option>
+          <option value="modern_mountain">Modern Mountain</option>
+          <option value="modern_snow">Modern Snow / Winter</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_climate">Climate (AUTO LOCKED)</span></label>
+        <select id="climate" disabled>
+          <option value="tropical">Tropical</option>
+          <option value="mountain">Mountain</option>
+          <option value="snow">Snow / Winter</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_aspect">Aspect Ratio</span></label>
+        <select id="aspect">
+          <option value="9:16" selected>9:16 (Portrait)</option>
+          <option value="16:9">16:9 (Landscape)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_ui_lang">UI Language</span></label>
+        <select id="uiLang">
+          <option value="en" selected>English</option>
+          <option value="id">Indonesia</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_wall">Material Wall</span></label>
+        <select id="wallMaterial">
+          <option value="bata_merah" selected>Bata Merah</option>
+          <option value="batako">Batako</option>
+          <option value="aac">AAC / Hebel</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_toolset">Tool Set</span></label>
+        <select id="toolSet">
+          <option value="default" selected>DEFAULT (mixer kecil + genset)</option>
+          <option value="manual_only">Manual tools only</option>
+          <option value="small_excavator">Small excavator + wheelbarrow</option>
+          <option value="rebar_cut_bend">Rebar cut & bend (inside plot)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_workers">Worker Count</span></label>
+        <select id="workerCount">
+          <option value="tight" selected>Tight (P:2–4 / E,M:6–8)</option>
+          <option value="ultra_tight">Ultra tight (P:1–2 / E,M:4–6)</option>
+          <option value="medium">Medium (P:3–5 / E,M:7–9)</option>
+          <option value="high">High (P:4–6 / E,M:9–12) ⚠</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_solar">Solar Panel</span></label>
+        <select id="solar">
+          <option value="off" selected>OFF</option>
+          <option value="on">ON (subtle • no logo)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_veo_output">VEO VIDEO Output</span></label>
+        <select id="veoJson">
+          <option value="off" selected>JSON OFF (plain prompt)</option>
+          <option value="on">JSON ON (clean VEO payload)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_anchor_mode">Auto Anchor Mode</span></label>
+        <select id="anchorMode">
+          <option value="compact">Compact</option>
+          <option value="nuclear" selected>Full Nuclear</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_hardlock">Hard Lock Mode (SMART)</span></label>
+        <select id="hardLock">
+          <option value="off" selected>OFF</option>
+          <option value="on">ON (lock after preset)</option>
+        </select>
+        <div class="hint">If ON before preset → status becomes <b>ARMED</b> (it will NOT lock until you apply a preset).</div>
+      </div>
+
+      <div class="col-3">
+        <label><span data-i18n="lbl_roof_model">Roof Model (FINAL ONLY)</span></label>
+        <select id="roofModel">
+          <option value="flat_slab" selected>Flat roof (modern slab)</option>
+          <option value="shed">Single-slope / shed</option>
+          <option value="gable">Gable roof</option>
+          <option value="hip">Hip roof</option>
+          <option value="butterfly">Butterfly roof</option>
+          <option value="flat_plus_small_pitch">Flat + small pitched secondary</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_roof_material">Roof Material (FINAL ONLY)</span> <span class="smallpill" data-i18n="pill_auto_sync">AUTO-SYNC</span></label>
+        <select id="roofMaterial">
+          <option value="concrete_slab" selected>Concrete slab (flat)</option>
+          <option value="standing_seam">Standing seam metal (dark gray)</option>
+          <option value="clay_tile">Clay tile (terracotta)</option>
+          <option value="shingle_dark">Shingle (dark)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_ridge">Ridge Direction (FINAL)</span> <span class="smallpill" data-i18n="pill_auto_lock">AUTO LOCK</span></label>
+        <select id="ridgeDir">
+          <option value="auto" selected>AUTO</option>
+          <option value="front_back">Front↔Back</option>
+          <option value="left_right">Left→Right</option>
+          <option value="diagonal">Diagonal</option>
+          <option value="na">N/A (flat)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_pitch">Roof Pitch (FINAL)</span></label>
+        <select id="pitch">
+          <option value="auto" selected>AUTO</option>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="steep">Steep</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_roof_elements">No Roof Elements</span></label>
+        <select id="roofElements">
+          <option value="none" selected>NO extra elements (default)</option>
+          <option value="allow_vents">Allow subtle vents only</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_roof_detail">Roof Detail Lock</span></label>
+        <select id="roofDetail">
+          <option value="normal">Normal</option>
+          <option value="strong" selected>Strong</option>
+          <option value="nuclear">Nuclear</option>
+        </select>
+      </div>
+
+      <div class="col-3">
+        <label><span data-i18n="lbl_final_move">Final Move</span></label>
+        <select id="finalMove">
+          <option value="static" selected>Static</option>
+          <option value="slow_zoom">Slow ZOOM</option>
+          <option value="micro_orbit">Micro orbit</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_final_traffic">Final Video Traffic</span></label>
+        <select id="finalTraffic">
+          <option value="no_car" selected>No car</option>
+          <option value="one_car">1 car (nearly static)</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_final_lighting">Lighting FINAL</span></label>
+        <select id="finalLighting">
+          <option value="golden_luxury" selected>Golden luxury</option>
+          <option value="golden_to_night">Golden → Night</option>
+          <option value="overcast">Overcast</option>
+          <option value="winter_overcast">Winter overcast</option>
+          <option value="winter_low_sun">Winter low-angle sun</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_final_atmos">Final Atmosphere</span></label>
+        <select id="finalAtmos">
+          <option value="clear" selected>Clear</option>
+          <option value="rain">Rain</option>
+          <option value="rain_wet">Rain + wet reflections</option>
+          <option value="snow_light">Snowfall light</option>
+          <option value="snow_heavy">Snowfall heavy</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label><span data-i18n="lbl_final_clean">Final Cleanliness</span></label>
+        <select id="finalClean">
+          <option value="pristine" selected>Pristine luxury clean</option>
+          <option value="standard_clean">Standard clean</option>
+          <option value="post_cleanup">Post-cleanup ongoing (no dust haze)</option>
+        </select>
+      </div>
+
+      <div class="col-12"><div id="warnbar" class="warnbar"></div></div>
+      <div class="col-12">
+        <div class="kv">
+          <span id="presetStatus">Preset: <b>NONE</b></span>
+          <span>Hard Lock: <b id="hardLockBadge">OFF</b></span>
+          <span>V8.1.38: <b>Semi-Auto Smart Anchor (Offline)</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span data-i18n="h_presets">Lock Pack Presets</span></h2>
+    <div class="row">
+      <div class="col-3"><button class="btn ok" onclick="applyPreset('pondasi')"><span data-i18n="btn_preset_pondasi">MASTER PONDASI (0–5%)</span></button></div>
+      <div class="col-3"><button class="btn ok" onclick="applyPreset('early')"><span data-i18n="btn_preset_early">MASTER EARLY (10–15%)</span></button></div>
+      <div class="col-3"><button class="btn warn" onclick="applyPreset('mid')"><span data-i18n="btn_preset_mid">MASTER MID-NS (40–45%)</span></button></div>
+      <div class="col-3"><button class="btn primary" onclick="applyPreset('final')"><span data-i18n="btn_preset_final">MASTER FINAL (90–95%)</span></button></div>
+    </div>
+    <div class="sectionBar">
+      <button class="btn ghost" onclick="unlockAll()"><span data-i18n="btn_unlock">Unlock</span></button>
+      <button class="btn ghost" onclick="lockAll()"><span data-i18n="btn_lock_now">Lock Now</span></button>
+      <button class="btn ghost" onclick="expandAllOutputs()"><span data-i18n="btn_expand_all">Expand all outputs</span></button>
+      <button class="btn ghost" onclick="collapseAllOutputs()"><span data-i18n="btn_collapse_all">Collapse all outputs</span></button>
+      <button class="btn ghost" onclick="clearLog()"><span data-i18n="btn_clear_log">Clear Log</span></button>
+      <button class="btn ghost" onclick="exportAll()"><span data-i18n="btn_export_all">Export All</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span data-i18n="h_anchor">Anchor (Optional)</span></h2>
+    <textarea id="anchor" placeholder="Paste anchor here (optional)"></textarea>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn ghost" onclick="autoAnchor()"><span data-i18n="btn_auto_anchor">Auto Anchor Now</span></button>
+      <button class="btn ghost" onclick="clearAnchor()"><span data-i18n="btn_clear_anchor">Clear Anchor</span></button>
+    </div>
+  </div>
+
+  <div class="card" id="finalPhotoAnchorCard">
+    <h2>Final Photo Anchor (Option A — Offline)</h2>
+    <small>Upload your FINAL image. V8.1.38 detects: Asphalt (Road), Warm Tones (Village), Greenery, and Pools.</small>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-top:12px">
+      <div style="min-width:220px;flex:1">
+        <label style="display:block;margin-bottom:6px;font-weight:600">Upload FINAL image</label>
+        <input id="finalRefFile" type="file" accept="image/*" />
+        <button type="button" id="openFinalInTabBtn" class="open-full-btn" disabled style="margin-top:10px;">Open full</button>
+        <div style="margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card2)">
+          <img id="finalPreview" alt="Final reference preview" style="display:none;width:100%;height:auto;max-height:240px;object-fit:contain"/>
+          <div id="finalRefEmpty" style="padding:12px;color:var(--muted)">No image uploaded.</div>
+        </div>
+      </div>
+
+      <div style="min-width:240px;flex:1.2">
+        <label style="display:block;margin-bottom:6px;font-weight:600">Landmark Pins (choose what’s clearly visible in FINAL)</label>
+        
+        <div style="display:flex;gap:10px;align-items:center;margin:8px 0 10px;">
+          <button type="button" id="fpAutoSuggestBtn" class="open-full-btn" style="padding:8px 12px;font-weight:800;">Auto‑suggest pins</button>
+          <div id="fpAutoStatus" style="font-size:12px;color:var(--muted);line-height:1.25;">
+            Upload a FINAL image, then click <b>Auto‑suggest</b>.
+          </div>
+        </div>
+        <div id="fpAutoReport" style="display:none;margin:0 0 10px;padding:10px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:12px;background:rgba(0,0,0,0.18);color:var(--text);font-size:12px;line-height:1.35;"></div>
+
+        <div class="grid2">
+          <label class="pill"><input type="checkbox" class="fpPin" value="ROAD_GEOM"> Road geometry (curve/lines)</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="CORNER_LOT"> Corner lot / plot edges</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="RETAINING_WALL"> Retaining wall / boundary</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="RICE_TERRACE"> Rice terraces pattern</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="HILLS_SILHOUETTE"> Hills/mountain silhouette</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="VILLAGE_HOUSES"> Nearby village houses</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="TREES_CLUSTER"> Key tree/palm clusters</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="UTILITY_LINES"> Utility poles/wires</label>
+          <label class="pill"><input type="checkbox" class="fpPin" value="POOL_DECK"> Pool/Water features fixed</label>
+        </div>
+
+        <label style="display:block;margin:12px 0 6px;font-weight:600">Extra notes (optional)</label>
+        <textarea id="finalRefNotes" placeholder="Example: Road bends 90° at the corner; stone wall wraps the plot..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="card genSticky">
+    <button class="btn primary" onclick="generate()"><span data-i18n="btn_generate">Generate Output (ULTRA LOCK)</span></button>
+  </div>
+
+  <div class="card outCard open" id="sec-global">
+    <div class="outHead">
+      <div class="outTitle"><span data-i18n="sec_global">GLOBAL CONTRACT</span></div>
+      <div class="outRight"><button class="outBtn" onclick="copyText('global')">Copy</button><div class="outChevron" onclick="toggleSection('sec-global')"><span>▾</span></div></div>
+    </div>
+    <div class="outBody"><pre id="global" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-photoMaster">
+    <div class="outHead"><div class="outTitle">PHOTO — FINAL (MASTER)</div><div class="outRight"><button class="outBtn" onclick="copyText('photoMaster')">Copy</button><div class="outChevron" onclick="toggleSection('sec-photoMaster')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="photoMaster" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-photoPondasi">
+    <div class="outHead"><div class="outTitle">PHOTO — PONDASI</div><div class="outRight"><button class="outBtn" onclick="copyText('photoPondasi')">Copy</button><div class="outChevron" onclick="toggleSection('sec-photoPondasi')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="photoPondasi" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-photoEarly">
+    <div class="outHead"><div class="outTitle">PHOTO — EARLY</div><div class="outRight"><button class="outBtn" onclick="copyText('photoEarly')">Copy</button><div class="outChevron" onclick="toggleSection('sec-photoEarly')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="photoEarly" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-photoMid">
+    <div class="outHead"><div class="outTitle">PHOTO — MID</div><div class="outRight"><button class="outBtn" onclick="copyText('photoMid')">Copy</button><div class="outChevron" onclick="toggleSection('sec-photoMid')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="photoMid" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-photoFinal">
+    <div class="outHead"><div class="outTitle">PHOTO — FINAL</div><div class="outRight"><button class="outBtn" onclick="copyText('photoFinal')">Copy</button><div class="outChevron" onclick="toggleSection('sec-photoFinal')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="photoFinal" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-videoPondasi">
+    <div class="outHead"><div class="outTitle">VIDEO — PONDASI</div><div class="outRight"><button class="outBtn" onclick="copyText('videoPondasi')">Copy</button><div class="outChevron" onclick="toggleSection('sec-videoPondasi')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="videoPondasi" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-videoEarly">
+    <div class="outHead"><div class="outTitle">VIDEO — EARLY</div><div class="outRight"><button class="outBtn" onclick="copyText('videoEarly')">Copy</button><div class="outChevron" onclick="toggleSection('sec-videoEarly')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="videoEarly" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-videoMid">
+    <div class="outHead"><div class="outTitle">VIDEO — MID</div><div class="outRight"><button class="outBtn" onclick="copyText('videoMid')">Copy</button><div class="outChevron" onclick="toggleSection('sec-videoMid')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="videoMid" class="outPre"></pre></div>
+  </div>
+  <div class="card outCard" id="sec-videoFinal">
+    <div class="outHead"><div class="outTitle">VIDEO — FINAL</div><div class="outRight"><button class="outBtn" onclick="copyText('videoFinal')">Copy</button><div class="outChevron" onclick="toggleSection('sec-videoFinal')"><span>▾</span></div></div></div>
+    <div class="outBody"><pre id="videoFinal" class="outPre"></pre></div>
+  </div>
+
+  <div class="card">
+    <h2><span data-i18n="h_log">MINI AUDIT LOG</span></h2>
+    <pre id="auditLog" class="logpre"></pre>
+  </div>
+
+  <div class="footer">V8.1.42a — Nuclear Lock (Landscape + Worker Clamp + Final Purity)</div>
+</div>
+
+<script>
+/* ================= MASTER RULES ================= */
+const UI_I18N = {
+  en: { lbl_ui_lang:"UI Language", lbl_engine:"Output Engine", lbl_category:"Category (AUTO SYNC → Climate)", lbl_climate:"Climate (AUTO LOCKED)", lbl_aspect:"Aspect Ratio", lbl_wall:"Material Wall", lbl_toolset:"Tool Set", lbl_workers:"Worker Count", lbl_solar:"Solar Panel", lbl_veo_output:"VEO VIDEO Output", lbl_anchor_mode:"Auto Anchor Mode", lbl_hardlock:"Hard Lock Mode (SMART)", lbl_roof_model:"Roof Model (FINAL ONLY)", lbl_roof_material:"Roof Material (FINAL ONLY)", pill_auto_sync:"AUTO-SYNC", lbl_ridge:"Ridge Direction (FINAL)", pill_auto_lock:"AUTO LOCK", lbl_pitch:"Roof Pitch (FINAL)", lbl_roof_elements:"No Roof Elements", lbl_roof_detail:"Roof Detail Lock", lbl_final_move:"Final Move", lbl_final_traffic:"Final Video Traffic", lbl_final_lighting:"Lighting FINAL", lbl_final_atmos:"Final Atmosphere", lbl_final_clean:"Final Cleanliness", h_presets:"Lock Pack Presets", h_anchor:"Anchor (Optional)", h_log:"MINI AUDIT LOG", btn_preset_pondasi:"MASTER PONDASI (0–5%)", btn_preset_early:"MASTER EARLY (10–15%)", btn_preset_mid:"MASTER MID-NS (40–45%)", btn_preset_final:"MASTER FINAL (90–95%)", btn_unlock:"Unlock", btn_lock_now:"Lock Now", btn_expand_all:"Expand all outputs", btn_collapse_all:"Collapse all outputs", btn_clear_log:"Clear Log", btn_export_all:"Export All", btn_auto_anchor:"Auto Anchor Now", btn_clear_anchor:"Clear Anchor", btn_generate:"Generate Output (ULTRA LOCK)", btn_reset:"Reset", sec_global:"GLOBAL CONTRACT" },
+  id: { lbl_ui_lang:"Bahasa UI", lbl_engine:"Mesin Output", lbl_category:"Kategori", lbl_climate:"Iklim", lbl_aspect:"Rasio", lbl_wall:"Material Dinding", lbl_toolset:"Set Alat", lbl_workers:"Jumlah Pekerja", lbl_solar:"Panel Surya", lbl_veo_output:"Output VIDEO VEO", lbl_anchor_mode:"Mode Auto Anchor", lbl_hardlock:"Mode Hard Lock", lbl_roof_model:"Model Atap (HANYA FINAL)", lbl_roof_material:"Material Atap (HANYA FINAL)", pill_auto_sync:"AUTO-SYNC", lbl_ridge:"Arah Nok (FINAL)", pill_auto_lock:"AUTO LOCK", lbl_pitch:"Kemiringan Atap (FINAL)", lbl_roof_elements:"Elemen Atap", lbl_roof_detail:"Kunci Detail Atap", lbl_final_move:"Gerak Final", lbl_final_traffic:"Traffic Video Final", lbl_final_lighting:"Pencahayaan FINAL", lbl_final_atmos:"Atmosfer Final", lbl_final_clean:"Kebersihan Final", h_presets:"Preset Lock Pack", h_anchor:"Anchor (Opsional)", h_log:"LOG AUDIT MINI", btn_preset_pondasi:"MASTER PONDASI (0–5%)", btn_preset_early:"MASTER EARLY (10–15%)", btn_preset_mid:"MASTER MID-NS (40–45%)", btn_preset_final:"MASTER FINAL (90–95%)", btn_unlock:"Buka Kunci", btn_lock_now:"Kunci Sekarang", btn_expand_all:"Buka semua output", btn_collapse_all:"Tutup semua output", btn_clear_log:"Bersihkan Log", btn_auto_anchor:"Auto Anchor Sekarang", btn_clear_anchor:"Hapus Anchor", btn_generate:"Generate Output (ULTRA LOCK)", btn_reset:"Reset", btn_export_all:"Ekspor Semua", sec_global:"KONTRAK GLOBAL" }
+};
+
+function $(id){ return document.getElementById(id); }
+function uiLang(){ return $("uiLang")?.value || "en"; }
+function applyUILang(){
+  const lang = uiLang(); const dict = UI_I18N[lang] || UI_I18N.en;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k=el.getAttribute("data-i18n"); if(dict[k]) el.textContent=dict[k];
+  });
+}
+
+/* ==== RUNTIME SAFETY & DIAGNOSTICS (V8.1.38b) ==== */
+window.addEventListener("error", (e)=>{
+  try{
+    const msg = "JS ERROR: " + (e?.message || "unknown") + (e?.filename ? (" @ " + e.filename.split("/").pop() + ":" + e.lineno) : "");
+    logEvent(msg);
+    showToast("Error — open Mini Audit Log","bad");
+  }catch(_){}
+});
+window.addEventListener("unhandledrejection", (e)=>{
+  try{
+    const msg = "PROMISE ERROR: " + (e?.reason?.message || String(e?.reason || "unknown"));
+    logEvent(msg);
+    showToast("Error — open Mini Audit Log","bad");
+  }catch(_){}
+});
+
+/* Constants & Logic */
+const CAMERA_LOCK_STATIC = `CAMERA & FRAME LOCK (ULTRA-NUCLEAR):\n- Static camera. No zoom, no rotation, no tilt, no dolly, no orbit.\n- Same distance, same horizon line, same lens look across all stages.\n- Composition must not shift by even 1% (no reframe, no crop drift).`;
+const PHOTO_SCENE_LOCK = `PHOTO SCENE CONSISTENCY LOCK (ULTRA):\n- Treat this as the SAME exact photo spot photographed on different days.\n- GPS-LOCKED drone/tripod position. SAME exact location, terrain, driveway, nearby houses.\n- Keep the building footprint, orientation, and massing IDENTICAL across all stages.`;
+const ONLY_FINAL_CAN_MOVE = `MOTION RULE (ABSOLUTE):\n- PONDASI, EARLY, MID: MUST remain 100% static.\n- FINAL: motion allowed ONLY if selected in Final Move menu.`;
+const LOOP_SAFE_LOCK = `LOOP / CONTINUITY LOCK:\n- Same anchor geometry persists. No jump-cut progress.`;
+const DRIFT_KILLER = `CRITICAL ANTI-DRIFT:\n- Construction must physically touch the ground.\n- NO second-floor origin, NO floating.\n- Road must stay clear in PONDASI/EARLY/MID.`;
+const ANTI_GRID_LOCK_BRUTAL = `ANTI-GRID / ANTI-ROOF-FRAME (BRUTAL):\n- EARLY & MID: ABSOLUTELY NO ROOF of any kind.\n- NO roof silhouette, NO trusses, NO beams, NO rafters.`;
+const PROGRESS_CLAMP = `PROGRESS HARD CLAMP:\n- PONDASI: 0–5% (site prep only).\n- EARLY: 10–15% (starter masonry).\n- MID: 40–45% (incomplete walls, open edges).\n- FINAL: 90–95%.`;
+const DUST_THIN_3STAGE = `DUST RULE:\n- Add very thin realistic construction dust in PONDASI/EARLY/MID.\n- FINAL: NO dust, clean.`;
+const LANDSCAPE_IMMUTABILITY_LOCK = `LANDSCAPE IMMUTABILITY LOCK (NUCLEAR):
+- The surrounding environment MUST remain identical across all stages.
+- Road geometry, width, lane marking, and curvature cannot change.
+- Mountain silhouette and skyline must remain identical.
+- Nearby village houses must keep same position and scale.
+- Pool shape, water color, and deck layout cannot change.
+- No new buildings may appear.
+- No existing buildings may disappear.
+- No terrain reshaping.
+- No additional landscaping.
+- No seasonal change.`;
+
+const WORKER_BEHAVIOR_CLAMP = `WORKER BEHAVIOR CLAMP:
+- Worker count must strictly follow Worker Count menu selection.
+- Only 1–2 workers may show micro-movement at a time.
+- Others must appear naturally paused or static.
+- No chaotic movement.
+- No large crowd.
+- No additional random workers.
+- No safety vests with text/logos.`;
+
+const FINAL_PURITY_LOCK = `FINAL STAGE PURITY LOCK:
+- FINAL stage MUST contain ZERO workers.
+- No construction equipment visible.
+- No concrete mixer.
+- No generator.
+- No wheelbarrows.
+- No scaffolding.
+- No leftover materials.
+- No dust.
+- Fully cleaned site.
+- Luxury pristine finished environment.`;
+
+const FINAL_ROOF_DETAIL_LOCK = `FINAL ROOF DETAIL LOCK:
+- Roof shape must exactly follow selected roof model.
+- Ridge direction must follow Ridge menu selection.
+- Pitch must follow Pitch menu selection.
+- No secondary roof structures unless explicitly selected.
+- No temporary roof elements.
+- No visible roof framing.`;
+
+
+const CLIMATE_LOCK = {
+  tropical: { ban:["snow","winter","pine","ice"], allowLighting:["daylight","golden luxury","overcast"], allowedFinalAtmos:["clear","rain","rain_wet"] },
+  mountain: { ban:["beach","ocean","tropical island"], allowLighting:["daylight","golden luxury","overcast"], allowedFinalAtmos:["clear","rain","rain_wet"] },
+  snow: { ban:["palm","rice field","sawah","beach"], allowLighting:["overcast","winter low-angle sun"], allowedFinalAtmos:["clear","snow_light","snow_heavy"] }
+};
+const CATEGORY_TO_CLIMATE = { modern_tropical:"tropical", modern_mountain:"mountain", modern_snow:"snow" };
+const PRESETS = {
+  pondasi:{ name:"MASTER PONDASI (0–5%)", enforce:{ finalMove:"static", finalTraffic:"no_car", toolSet:"default", workerCount:"tight", roofModel:"flat_slab" } },
+  early:{ name:"MASTER EARLY (10–15%)", enforce:{ finalMove:"static", finalTraffic:"no_car", toolSet:"default", workerCount:"tight", roofModel:"flat_slab" } },
+  mid:{ name:"MASTER MID-NS (40–45%)", enforce:{ toolSet:"default", workerCount:"tight" }, noFinalTouch:true, noRoofTouch:true },
+  final:{ name:"MASTER FINAL (90–95%)", enforce:{ finalMove:"micro_orbit", finalTraffic:"one_car", toolSet:"default", workerCount:"tight", finalClean:"pristine" } }
+};
+
+let state = { locked:false, activePresetKey:null, hardLockArmed:false };
+
+function hardLockIsOn(){ return $("hardLock").value==="on"; }
+function presetApplied(){ return !!state.activePresetKey; }
+function logEvent(msg){
+  const el=$("auditLog"); const d=new Date();
+  const time=`${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+  el.textContent = `[${time}] ${msg}\n` + (el.textContent||"").slice(0,2000);
+}
+function clearLog(){ $("auditLog").textContent=""; }
+
+function setLocked(isLocked){
+  state.locked = isLocked;
+  const EDITABLE = ["engine","category","aspect","veoJson","hardLock","wallMaterial","toolSet","workerCount","solar","anchorMode","roofModel","roofMaterial","ridgeDir","pitch","roofElements","roofDetail","finalMove","finalTraffic","finalLighting","finalAtmos","finalClean"];
+  const WHITELIST = new Set(["engine","category","aspect","veoJson","hardLock"]);
+  for(const id of EDITABLE){
+    if(!$("hardLock")) continue;
+    if(id==="climate") continue; 
+    $(id).disabled = isLocked && !WHITELIST.has(id);
+  }
+  $("anchor").disabled = isLocked;
+  
+  const badge = $("hardLockBadge");
+  if(!hardLockIsOn()) badge.textContent="OFF";
+  else if(state.locked) badge.textContent="ON";
+  else badge.textContent = state.hardLockArmed ? "ARMED" : "OFF";
+  
+  renderWarnings();
+}
+
+function renderWarnings(){
+  const w = $("warnbar"); const msgs=[];
+  if($("workerCount").value==="high") msgs.push("Worker Count HIGH: Risk of chaos.");
+  if(state.locked) msgs.push("LOCKED. Menus disabled.");
+  else if(state.hardLockArmed) msgs.push("Hard Lock ARMED. Will lock on Preset apply.");
+  w.style.display = msgs.length ? "block" : "none";
+  w.innerHTML = "<b>NOTE:</b> " + msgs.join(" ");
+}
+
+/* Helpers */
+function getAspect(){ return $("aspect").value; }
+function syncClimate(){ $("climate").value = CATEGORY_TO_CLIMATE[$("category").value] || "tropical"; }
+function filterFinalOptions(){
+  const cli = $("climate").value; const lock = CLIMATE_LOCK[cli];
+  if(!lock) return;
+  const allowed = new Set(lock.allowedFinalAtmos || []);
+  Array.from($("finalAtmos").options).forEach(o => o.disabled = !allowed.has(o.value));
+}
+
+function autoAnchor(){
+  const cat=$("category").value.replace("_"," ");
+  const cli=$("climate").value;
+  const wall=$("wallMaterial").value;
+  const roof=$("roofModel").value;
+  const txt = `ANCHOR HOUSE:\n- Category: ${cat}\n- Climate: ${cli}\n- Wall: ${wall}\n- Final Roof: ${roof} (FINAL ONLY)`;
+  $("anchor").value = txt;
+  logEvent("Auto Anchor generated.");
+}
+function clearAnchor(){ $("anchor").value=""; }
+
+function applyPreset(key){
+  state.activePresetKey = key;
+  $("presetStatus").innerHTML = `Preset: <b>${PRESETS[key].name}</b>`;
+  const p = PRESETS[key];
+  if(p.enforce){
+    for(const [k,v] of Object.entries(p.enforce)) if($(k)) $(k).value=v;
+  }
+  syncClimate();
+  if(!p.noFinalTouch) filterFinalOptions();
+  if(state.hardLockArmed){ state.hardLockArmed=false; setLocked(true); }
+  showToast(p.name + " applied.");
+  try{ scheduleSave(); }catch(e){}
+}
+
+function unlockAll(){ state.hardLockArmed=false; setLocked(false); }
+function lockAll(){ setLocked(true); }
+function expandAllOutputs(){ document.querySelectorAll(".outCard").forEach(e=>e.classList.add("open")); }
+function collapseAllOutputs(){ document.querySelectorAll(".outCard").forEach(e=>e.classList.remove("open")); }
+
+function toggleSection(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.toggle("open");
+}
+
+/* Copy & Toast */
+function showToast(msg, kind="ok"){
+  const host=$("toastHost");
+  const d=document.createElement("div"); d.className=`toast ${kind}`; d.textContent=msg;
+  host.appendChild(d);
+  setTimeout(()=>d.classList.add("show"),10);
+  setTimeout(()=>{ d.classList.remove("show"); setTimeout(()=>d.remove(),300); }, 2000);
+}
+async function copyText(id){
+  const txt = $(id).textContent;
+  try{ await navigator.clipboard.writeText(txt); showToast("Copied!"); }
+  catch(e){ showToast("Copy failed","bad"); }
+}
+
+
+/* ===== Autosave (LocalStorage) + Export Pack (V8.1.42a) ===== */
+const LS_KEY = "CAB_V8_1_42A_STATE";
+const LS_KEY_OLD = "CAB_V8_1_40_STATE";
+const LS_KEY_OLD2 = "CAB_V8_1_42_STATE";
+const LS_KEY_OLD3 = "CAB_V8_1_41_STATE";
+
+function collectState(){
+  const ids = ["engine","category","aspect","uiLang","wallMaterial","toolSet","workerCount","solar","veoJson","anchorMode","hardLock",
+               "roofModel","roofMaterial","ridgeDir","pitch","roofElements","roofDetail",
+               "finalMove","finalTraffic","finalLighting","finalAtmos","finalClean",
+               "anchor","finalRefNotes"];
+  const st = { v:"8.1.42a", inputs:{}, pins:[], presetKey:null };
+  ids.forEach(id=>{
+    const el = $(id);
+    if(!el) return;
+    st.inputs[id] = (el.type==="checkbox") ? !!el.checked : el.value;
+  });
+  st.pins = Array.from(document.querySelectorAll(".fpPin")).filter(c=>c.checked).map(c=>c.value);
+  st.presetKey = state.activePresetKey || null;
+  // do NOT store image file for privacy/size
+  return st;
+}
+function applyState(st){
+  if(!st || !st.inputs) return;
+  Object.entries(st.inputs).forEach(([id,val])=>{
+    const el = $(id);
+    if(!el) return;
+    if(el.type==="checkbox") el.checked = !!val;
+    else el.value = val;
+  });
+  // pins
+  const set = new Set(st.pins||[]);
+  document.querySelectorAll(".fpPin").forEach(c=>c.checked=set.has(c.value));
+// restore preset badge (without re-applying enforce rules)
+state.activePresetKey = st.presetKey || null;
+try{
+  if(state.activePresetKey && PRESETS[state.activePresetKey]){
+    $("presetStatus").innerHTML = `Preset: <b>${PRESETS[state.activePresetKey].name}</b>`;
+  }else{
+    $("presetStatus").innerHTML = `Preset: <b>NONE</b>`;
+  }
+}catch(e){}
+  // ensure dependent sync
+  syncClimate(); filterFinalOptions(); applyUILang(); renderWarnings();
+}
+let saveT = null;
+function scheduleSave(){
+  clearTimeout(saveT);
+  saveT = setTimeout(()=>{
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(collectState())); }
+    catch(e){ /* ignore */ }
+  }, 120);
+}
+function loadSaved(){
+  try{
+    let raw = localStorage.getItem(LS_KEY);
+    if(!raw) raw = localStorage.getItem(LS_KEY_OLD2);
+    if(!raw) raw = localStorage.getItem(LS_KEY_OLD3);
+    if(!raw) raw = localStorage.getItem(LS_KEY_OLD);
+    if(!raw) return;
+    const st = JSON.parse(raw);
+    applyState(st);
+    logEvent("Autosave restored.");
+  }catch(e){ /* ignore */ }
+}
+
+function exportAll(){
+  const parts = [];
+  const push = (title,id)=>{
+    const el = $(id); 
+    if(!el) return;
+    const t = (el.textContent||"").trim();
+    if(!t) return;
+    parts.push("===== " + title + " =====\n" + t);
+  };
+  push("GLOBAL CONTRACT","global");
+  push("PHOTO — FINAL (MASTER)","photoMaster");
+  push("PHOTO — PONDASI","photoPondasi");
+  push("PHOTO — EARLY","photoEarly");
+  push("PHOTO — MID","photoMid");
+  push("PHOTO — FINAL","photoFinal");
+  push("VIDEO — PONDASI","videoPondasi");
+  push("VIDEO — EARLY","videoEarly");
+  push("VIDEO — MID","videoMid");
+  push("VIDEO — FINAL","videoFinal");
+  const out = parts.join("\n\n");
+  if(!out){
+    showToast("Nothing to export. Generate first.","warn");
+    return;
+  }
+  // Try copy
+  navigator.clipboard.writeText(out).then(()=>{
+    showToast("Export copied.","ok");
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement("textarea");
+    ta.value=out; ta.style.position="fixed"; ta.style.left="-9999px";
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); showToast("Export copied.","ok"); }
+    catch(e){ showToast("Copy failed.","bad"); }
+    finally{ ta.remove(); }
+  });
+}
+
+/* GENERATE */
+function generate(){
+  try{
+  syncClimate();
+  filterFinalOptions();
+
+  if(!$("anchor").value) autoAnchor();
+
+  // MASTER STANDARD AUTO‑INJECT (V8.1.40)
+  if(!presetApplied()){
+    // Enforce your safest production defaults even if user skips presets
+    if($("toolSet")) $("toolSet").value = "default";
+    if($("workerCount")) $("workerCount").value = "tight";
+    if($("anchorMode")) $("anchorMode").value = "nuclear";
+    if($("roofDetail")) $("roofDetail").value = "strong";
+    if($("finalClean")) $("finalClean").value = "pristine";
+    // Early/Mid should never move + no traffic
+    if($("finalMove")) $("finalMove").value = "static";
+    if($("finalTraffic")) $("finalTraffic").value = "no_car";
+    logEvent("Master Auto‑Inject applied (no preset).");
+  }
+
+  const eng = $("engine").value;
+  const aspect = getAspect();
+  const anchor = $("anchor").value;
+  const cli = $("climate").value;
+
+  const wall = $("wallMaterial").value;
+  const tool = $("toolSet").value;
+  const workersMode = $("workerCount").value;
+  const solar = $("solar").value;
+
+  const roofModel = $("roofModel").value;
+  const roofMaterial = $("roofMaterial").value;
+  const ridgeDir = $("ridgeDir").value;
+  const pitch = $("pitch").value;
+  const roofElements = $("roofElements").value;
+  const roofDetail = $("roofDetail").value;
+
+  const finalMove = $("finalMove").value;
+  const finalTraffic = $("finalTraffic").value;
+  const finalLighting = $("finalLighting").value;
+  const finalAtmos = $("finalAtmos").value;
+  const finalClean = $("finalClean").value;
+
+  const neg = `NEGATIVE PROMPT:
+- ${((CLIMATE_LOCK[cli] && CLIMATE_LOCK[cli].ban) ? CLIMATE_LOCK[cli].ban : []).join("\n- ")}
+- floating structure, second floor origin
+- roof/trusses/rafters in PONDASI/EARLY/MID
+- traffic, cars, motorbikes in PONDASI/EARLY/MID
+- workers in FINAL
+- construction equipment in FINAL
+- mixer, scaffolding, tools in FINAL
+- extra buildings added, buildings disappearing
+- altered road geometry, changed road width
+- different mountain silhouette, shifted skyline
+- terrain reshaping, seasonal change
+- duplicated house, distorted proportions
+- text, watermark, logo, signage
+- shaky camera, zoom, reframe, crop drift`;
+
+  // Smart Pins (Final reference)
+  const pins = Array.from(document.querySelectorAll(".fpPin:checked"))
+    .map(c=>"- "+c.parentElement.textContent.trim())
+    .join("\n");
+  const notes = $("finalRefNotes").value.trim();
+  const finalAnchor = `FINAL PHOTO ANCHOR:
+${pins || "- (no pins selected)"}
+${notes ? "NOTES: "+notes : ""}`.trim();
+
+  // Worker profiles
+  const WORKERS = {
+    tight:       { PONDASI:"2–4", EARLY:"6–8", MID:"6–8", FINAL:"0" },
+    ultra_tight: { PONDASI:"1–2", EARLY:"4–6", MID:"4–6", FINAL:"0" },
+    medium:      { PONDASI:"3–5", EARLY:"7–9", MID:"7–9", FINAL:"0" },
+    high:        { PONDASI:"4–6", EARLY:"9–12", MID:"9–12", FINAL:"0" }
+  };
+  const wc = WORKERS[workersMode] || WORKERS.tight;
+
+  // Tool set notes (kept short but effective)
+  const TOOL_NOTES = {
+    default: "1 small concrete mixer (molen kecil), generator set, wheelbarrows, hand tools.",
+    manual_only: "manual hand tools only, buckets, wheelbarrows (NO heavy machines).",
+    small_excavator: "1 small excavator for controlled site work, wheelbarrows, hand tools.",
+    rebar_cut_bend: "rebar cutting & bending station INSIDE plot, tidy and controlled."
+  };
+
+  const STAGE_SPEC = {
+    PONDASI: `STAGE SPEC — PONDASI (0–5%):
+- Site preparation only: clearing, leveling, excavation lines, compacted soil.
+- Minimal foundation formwork/rebar starters ONLY (no walls).
+- Workers visible: ${wc.PONDASI} (controlled, not chaotic).
+- Road MUST be completely clear (no traffic, no parked cars).`,
+    EARLY: `STAGE SPEC — EARLY (10–15%):
+- True 10–15% progress from ground up.
+- Starter masonry ONLY: 1–2 brick/block courses below knee height.
+- Columns just beginning (low-mid stub), no dominant slab silhouette.
+- Workers visible: ${wc.EARLY} + 1 small mixer rotating slowly.
+- Road MUST be completely clear (no traffic).`,
+    MID: `STAGE SPEC — MID-NS (40–45%):
+- True 40–45% progress, non-structural visual priority.
+- Partial masonry around 30–35%, fragmented/incomplete walls, open edges.
+- Columns mid-height, NO roof, NO slab dominance, NO roof frame.
+- Workers visible: ${wc.MID} + 1 small mixer, controlled micro-movements.
+- Road MUST be completely clear (no traffic).`,
+    FINAL: `STAGE SPEC — FINAL (90–95%):
+- Near-finished luxury house, 90–95% completion.
+- Clean facade, complete windows/doors, landscaping refined.
+- Roof is allowed ONLY here (final roof model + material).
+- ZERO workers in FINAL (site is pristine and fully cleaned).
+- NO construction tools/equipment visible in FINAL.`
+  };
+
+  const FINAL_ROOF = `FINAL ROOF (FINAL ONLY):
+- Roof model: ${roofModel}
+- Roof material: ${roofMaterial}
+- Ridge direction: ${ridgeDir}
+- Pitch: ${pitch}
+- Extra roof elements: ${roofElements}
+- Roof detail lock: ${roofDetail}
+${solar==="on" ? "- Subtle solar panels allowed (no logo, no brand)." : ""}`.trim();
+
+  const VIDEO_FINAL_MOVEMENT = (()=>{
+    if(finalMove==="static") return "FINAL CAMERA MOVE: Static (no movement).";
+    if(finalMove==="slow_zoom") return "FINAL CAMERA MOVE: Ultra-slow zoom-in only (very subtle, no reframe).";
+    if(finalMove==="micro_orbit") return "FINAL CAMERA MOVE: Ultra-slow micro-orbit (max 3–5°) around facade, no tilt, no shake.";
+    return "FINAL CAMERA MOVE: Static.";
+  })();
+
+  const VIDEO_TRAFFIC = (finalTraffic==="one_car")
+    ? "FINAL TRAFFIC: Exactly 1 car passing slowly (nearly static), no logos, no honking."
+    : "FINAL TRAFFIC: No cars.";
+
+  const FINAL_LOOK = `FINAL LOOK CONTROLS:
+- Lighting: ${finalLighting}
+- Atmosphere: ${finalAtmos}
+- Cleanliness: ${finalClean}`;
+
+  // Base contract shared by all stages
+  const baseContract = `
+${anchor}
+${finalAnchor}
+${PHOTO_SCENE_LOCK}
+${CAMERA_LOCK_STATIC}
+${ONLY_FINAL_CAN_MOVE}
+${LOOP_SAFE_LOCK}
+${DRIFT_KILLER}
+${ANTI_GRID_LOCK_BRUTAL}
+${PROGRESS_CLAMP}
+${DUST_THIN_3STAGE}
+TOOLS / SITE:
+- Wall material: ${wall}
+- Tool set: ${TOOL_NOTES[tool] || TOOL_NOTES.default}
+${LANDSCAPE_IMMUTABILITY_LOCK}
+${WORKER_BEHAVIOR_CLAMP}
+${FINAL_PURITY_LOCK}
+${FINAL_ROOF_DETAIL_LOCK}
+${neg}
+`.trim();
+
+  // Per-stage builder (HARD ENFORCEMENT)
+  const PHOTO_ENGINE = "Gemini NanoBananaPro";
+  const VIDEO_ENGINE = /VEO/i.test(eng) ? "VEO 3.1" : eng;
+
+  const LOOP_HARD = `LOOP / TRANSITION (HARD ENFORCEMENT):
+- Each stage MUST look like the same camera position on different days.
+- Keep identical framing, lens feel, horizon, road geometry, village placement.
+- Start frame must match the previous stage end frame (no jump cut).
+- End frame must be suitable to loop seamlessly (no sudden motion).`;
+
+  const VIDEO_5D_TEMPLATE = (stage, stageSpec, roofBlock, isFinal) => {
+    const moveLine = (isFinal ? VIDEO_FINAL_MOVEMENT : "CAMERA MOVE: NONE (100% static).");
+    const trafficLine = (isFinal ? VIDEO_TRAFFIC : "TRAFFIC: NONE (road fully clear).");
+    const lightLine = isFinal ? FINAL_LOOK : "LIGHTING: Daylight (natural), thin dust allowed, no haze bloom.";
+
+    return [
+      `[CAMERA]`,
+      `- Aspect ratio: ${aspect}`,
+      `- ULTRA-NUCLEAR lock: no zoom, no pan, no tilt, no reframe, no crop drift`,
+      `- Tripod/drone GPS-locked position, same horizon line`,
+      `- ${moveLine}`,
+      ``,
+      `[SUBJECT & ACTION]`,
+      ...stageSpec.split("\n").map((l,i)=> i===0 ? `- ${l}` : `- ${l.replace(/^-?\s*/,"")}`),
+      `- Controlled micro-actions only: hands/arms small movement, slow wheelbarrow, slow mixer rotation`,
+      `- ${trafficLine}`,
+      ``,
+      `[PHYSICS DETAILS]`,
+      `- Natural wind in trees/leaves, subtle dust particles, realistic gravity`,
+      `- No floating structure, construction must touch ground`,
+      `- No chaos, no crowd swarm`,
+      ``,
+      `[LIGHTING / ATMOSPHERE]`,
+      `- ${lightLine}`,
+      `- Photorealistic cinematic grading, natural contrast`,
+      ``,
+      `[AUDIO]`,
+      `- Natural ASMR ambience: light wind, distant birds, soft tool sounds`,
+      `- No music, no speech, no branded sounds`,
+      ``,
+      `NEGATIVE PROMPT (HARD):`,
+      `- ${(CLIMATE_LOCK[cli] && CLIMATE_LOCK[cli].ban ? CLIMATE_LOCK[cli].ban : []).join("\n- ")}`,
+      `- text, watermark, subtitles, logos, brand names, signage`,
+      `- shaky cam, stabilization artifacts, warping, AI-looking plastic skin`,
+      `- roof/trusses/rafters in PONDASI/EARLY/MID`,
+      `- traffic, cars, motorbikes in PONDASI/EARLY/MID`,
+      `- duplicate buildings, changed lot orientation, changed road curve`,
+      ``,
+      roofBlock.trim()
+    ].filter(Boolean).join("\n");
+  };
+
+  function buildStagePrompt(stage, kind){
+    const isFinal = stage==="FINAL";
+    const stageSpec = STAGE_SPEC[stage] || `STAGE SPEC — ${stage}`;
+    const roofBlock = isFinal ? (`\n${FINAL_ROOF}`) : `\nROOF RULE: ABSOLUTELY NO ROOF of any kind in this stage.`;
+
+    if(kind==="photo"){
+      return `${PHOTO_ENGINE} — Hyper-realistic cinematic construction photo (${stage})
+ASPECT: ${aspect}
+
+${baseContract}
+
+PHOTO HARD ENFORCEMENT:
+- Portrait 9:16 (if selected), ultra high resolution
+- Natural lighting, realistic materials, no AI artifacts
+- Same environment, same road, same nearby houses across all stages
+
+${stageSpec}${roofBlock}
+
+STAGE: ${stage}`.trim();
+    }
+
+    const header = `${VIDEO_ENGINE} — Cinematic image-to-video (${stage})
+ASPECT: ${aspect}`;
+    const videoBody = VIDEO_5D_TEMPLATE(stage, stageSpec, roofBlock, isFinal);
+
+    return `${header}
+
+${baseContract}
+
+${LOOP_HARD}
+
+${videoBody}
+
+STAGE: ${stage}`.trim();
+  }
+
+  function toVeoJson(promptText){
+    const payload = {
+      prompt: promptText,
+      aspect_ratio: aspect,
+      duration_seconds: 8,
+      camera: { locked: true, shake: "none" },
+      audio: { mode: "natural_asmr", narration: "off" }
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  $("global").textContent = "GLOBAL CONTRACT: " + eng + " / " + aspect + "\n\n" + baseContract;
+
+  // PHOTO
+  $("photoPondasi").textContent = buildStagePrompt("PONDASI","photo");
+  $("photoEarly").textContent   = buildStagePrompt("EARLY","photo");
+  $("photoMid").textContent     = buildStagePrompt("MID","photo");
+  $("photoFinal").textContent   = buildStagePrompt("FINAL","photo");
+
+  
+  $("photoMaster").textContent  = buildStagePrompt("FINAL","photo") + "
+
+MASTER FINAL PHOTO OVERRIDE:
+- Use strongest landmark lock and pristine luxury finish.
+- ZERO workers, ZERO tools, ZERO dust.
+- No traffic unless explicitly requested for video only.";
+// VIDEO
+  const vP = buildStagePrompt("PONDASI","video");
+  const vE = buildStagePrompt("EARLY","video");
+  const vM = buildStagePrompt("MID","video");
+  const vF = buildStagePrompt("FINAL","video");
+
+  const jsonOn = $("veoJson").value==="on";
+  $("videoPondasi").textContent = (jsonOn && /VEO/i.test(eng)) ? toVeoJson(vP) : vP;
+  $("videoEarly").textContent   = (jsonOn && /VEO/i.test(eng)) ? toVeoJson(vE) : vE;
+  $("videoMid").textContent     = (jsonOn && /VEO/i.test(eng)) ? toVeoJson(vM) : vM;
+  $("videoFinal").textContent   = (jsonOn && /VEO/i.test(eng)) ? toVeoJson(vF) : vF;
+
+  document.getElementById("sec-global").classList.add("open");
+  logEvent("Generated outputs (hard enforcement).");
+  }catch(err){
+    const msg = (err && err.stack) ? err.stack : String(err);
+    logEvent("GENERATE FAILED: " + msg);
+    try{ showToast("Generate failed — check Mini Audit Log","bad"); }catch(_){ }
+  }
+}
+
+/* EVENT HOOKS */
+document.addEventListener("DOMContentLoaded", ()=>{
+  try{ applyUILang(); }catch(e){}
+  const ui=$("uiLang"); if(ui) ui.addEventListener("change", ()=>{ try{ applyUILang(); }catch(e){} });
+  try{ syncClimate(); filterFinalOptions(); }catch(e){}
+  try{ renderWarnings(); }catch(e){}
+  // Autosave restore
+  try{ loadSaved(); }catch(e){}
+  const cat=$("category"); if(cat) cat.addEventListener("change", ()=>{ try{ syncClimate(); filterFinalOptions(); }catch(e){} });
+  const hl=$("hardLock"); if(hl) hl.addEventListener("change", ()=>{
+     if($("hardLock").value==="off"){ unlockAll(); }
+     else { if(!presetApplied()) state.hardLockArmed=true; else setLocked(true); }
+     renderWarnings();
+  });
+  // Reset Button
+  $("resetAllBtn").addEventListener("click", ()=>{
+    if(confirm("Reset all settings?")) location.reload();
+  });
+  
+  // Preview Image
+  $("finalRefFile").addEventListener("change", (e)=>{
+    const f=e.target.files[0];
+    if(f){ $("finalPreview").src=URL.createObjectURL(f); $("finalPreview").style.display="block"; $("finalRefEmpty").style.display="none"; $("openFinalInTabBtn").disabled=false; }
+  });
+  // Autosave bindings
+  try{
+    document.querySelectorAll("select,input,textarea").forEach(el=>{
+      el.addEventListener("change", scheduleSave);
+      el.addEventListener("input", scheduleSave);
+    });
+    document.querySelectorAll(".fpPin").forEach(el=>el.addEventListener("change", scheduleSave));
+  }catch(e){}
+
+});
+</script>
+
+<div id="toastHost"></div>
+
+<canvas id="fpAnalyzeCanvas" style="display:none;"></canvas>
+
+<script>
+/* === Semi‑Auto Smart Anchor Detection (V8.1.38 Fixed) === */
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = $("finalRefFile");
+  const btn = $("fpAutoSuggestBtn");
+  const report = $("fpAutoReport");
+  const notes = $("finalRefNotes");
+  const canvas = $("fpAnalyzeCanvas");
+  const ctx = canvas ? canvas.getContext("2d", { willReadFrequently:true }) : null;
+
+  function setPin(val, on){ const el=document.querySelector('.fpPin[value="'+val+'"]'); if(el) el.checked=!!on; }
+  function pct(n){ return Math.round(n*100)+"%"; }
+
+  async function run(){
+    const file = fileInput?.files?.[0];
+    if(!file || !ctx) return alert("Upload image first.");
+    
+    $("fpAutoStatus").textContent = "Analyzing... (V8.1.38 Logic)";
+    
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await new Promise(r => img.onload=r);
+    
+    const w=320, h=Math.round(img.height*(320/img.width));
+    canvas.width=w; canvas.height=h;
+    ctx.drawImage(img,0,0,w,h);
+    const data = ctx.getImageData(0,0,w,h).data;
+    
+    let green=0, sky=0, asphalt=0, redTile=0, bluePool=0, total=w*h;
+    let edgeCount=0;
+
+    // Pixel Scan
+    for(let i=0; i<data.length; i+=4){
+      const r=data[i], g=data[i+1], b=data[i+2];
+      const y = Math.floor((i/4)/w);
+      
+      // Vegetation
+      if(g > r*1.1 && g > b*1.1 && g > 60) green++;
+      
+      // Sky (Top 45%)
+      if(y < h*0.45 && b > r+10 && b > g+10 && b > 120) sky++;
+
+      // Pool (Bottom 60% - Blue dominant)
+      if(y > h*0.40 && b > 130 && b > r*1.1 && b > g*1.05) bluePool++;
+      
+      // Red Tile (Village/Roof) - FIXED for Golden Hour
+      // Allow high brightness (Golden Hour), but check for Warmth dominance
+      if(r > 130 && r > g+15 && r > b+30 && g < r*0.95) redTile++;
+      
+      // Asphalt (Bottom 65% - FIXED for Mountain Roads)
+      const isGray = (Math.abs(r-g)<15 && Math.abs(g-b)<15);
+      if(y > h*0.35 && isGray && r>40 && r<160) asphalt++;
+    }
+
+    const pGreen=green/total, pSky=sky/total, pAsphalt=asphalt/total, pRed=redTile/total, pPool=bluePool/total;
+
+    // Report
+    let msg = `<b>Analysis V8.1.38:</b><br>`;
+    msg += `• Greenery: ${pct(pGreen)}<br>`;
+    msg += `• Sky (Top): ${pct(pSky)}<br>`;
+    msg += `• Asphalt (Road): ${pct(pAsphalt)} (Threshold > 2.5%)<br>`;
+    msg += `• Warm Tones (Village): ${pct(pRed)} (Threshold > 1%)<br>`;
+    msg += `• Blue Water (Pool): ${pct(pPool)} (Threshold > 0.5%)<br>`;
+    report.innerHTML = msg; report.style.display="block";
+
+    // Auto-Select
+    document.querySelectorAll(".fpPin").forEach(c=>c.checked=false);
+    if(pAsphalt > 0.025) setPin("ROAD_GEOM", true);
+    if(pRed > 0.01) setPin("VILLAGE_HOUSES", true);
+    if(pGreen > 0.15) setPin("TREES_CLUSTER", true);
+    if(pSky > 0.10) setPin("HILLS_SILHOUETTE", true);
+    if(pPool > 0.005) setPin("POOL_DECK", true);
+    
+    // Notes
+    let noteTxt = "";
+    if(pPool > 0.005) noteTxt += "Pool deck and water color locked. ";
+    if(pRed > 0.01) noteTxt += "Nearby village roof colors locked. ";
+    if(pAsphalt > 0.025) noteTxt += "Road width and curve geometry locked. ";
+    if(!notes.value) notes.value = noteTxt;
+
+    $("fpAutoStatus").textContent = "Done.";
+  }
+  
+  if(btn) btn.addEventListener("click", run);
+});
+</script>
+
+<div id="imgModal" style="position:fixed;inset:0;z-index:10000;display:none;background:rgba(0,0,0,0.85);justify-content:center;align-items:center;">
+  <img id="modalImg" style="max-width:95%;max-height:95%;border-radius:8px;">
+</div>
+<script>
+  $("openFinalInTabBtn").addEventListener("click", ()=>{
+    const s = $("finalPreview").src;
+    if(s){ $("modalImg").src=s; $("imgModal").style.display="flex"; }
+  });
+  $("imgModal").addEventListener("click", ()=>{ $("imgModal").style.display="none"; });
+</script>
+
+</body>
+</html>
