@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Construction Auto Builder — V8.1.42a (Master Auto-Inject • Autosave • Export Pack • Polish)</title>
+<title>Construction Auto Builder — V8.142 (Master Auto-Inject • Autosave • Export Pack • Polish)</title>
 
 <style>
 :root{
@@ -178,11 +178,11 @@ pre, .outPre{word-break:break-word}
 <body>
 <div class="wrap">
   <h1 class="titlebar">
-    <span class="titleleft">Construction Auto Builder <span class="badge vio">V8.1.42a</span></span>
+    <span class="titleleft">Construction Auto Builder <span class="badge vio">V8.142</span></span>
     <button class="btn-reset-header" id="resetAllBtn" type="button"><span data-i18n="btn_reset">Reset</span></button>
   </h1>
   <small>
-    V8.1.42a:
+    V8.142:
     (1) Hard Enforcement + 5D Video.
     (2) Master Standard Auto‑Inject (no preset needed).
     (3) Autosave (LocalStorage) + Export Pack.
@@ -520,7 +520,7 @@ pre, .outPre{word-break:break-word}
     <pre id="auditLog" class="logpre"></pre>
   </div>
 
-  <div class="footer">V8.1.42a — Nuclear Lock (Landscape + Worker Clamp + Final Purity)</div>
+  <div class="footer">V8.142 — Nuclear Lock (Landscape + Worker Clamp + Final Purity)</div>
 </div>
 
 <script>
@@ -584,6 +584,13 @@ const WORKER_BEHAVIOR_CLAMP = `WORKER BEHAVIOR CLAMP:
 - No large crowd.
 - No additional random workers.
 - No safety vests with text/logos.`;
+const BRICK_ANTI_DRIFT_LOCK = `BRICK MATERIAL ANTI-DRIFT LOCK (BATA MERAH ONLY):
+- Red brick is construction masonry material ONLY, NOT a design style cue.
+- Keep the exact same building geometry, openings, facade proportions, and footprint across all stages.
+- Apply brick texture ONLY on the locked wall surfaces; do NOT redesign the house.
+- Do NOT reinterpret as rustic/industrial/loft/exposed-brick aesthetic.
+- Keep environment and color grading neutral; do NOT shift road, mountains, village houses, or pool tones.`;
+
 
 const FINAL_PURITY_LOCK = `FINAL STAGE PURITY LOCK:
 - FINAL stage MUST contain ZERO workers.
@@ -719,8 +726,8 @@ async function copyText(id){
 }
 
 
-/* ===== Autosave (LocalStorage) + Export Pack (V8.1.42a) ===== */
-const LS_KEY = "CAB_V8_1_42A_STATE";
+/* ===== Autosave (LocalStorage) + Export Pack (V8.142) ===== */
+const LS_KEY = "CAB_V8_142_STATE";
 const LS_KEY_OLD = "CAB_V8_1_40_STATE";
 const LS_KEY_OLD2 = "CAB_V8_1_42_STATE";
 const LS_KEY_OLD3 = "CAB_V8_1_41_STATE";
@@ -730,7 +737,7 @@ function collectState(){
                "roofModel","roofMaterial","ridgeDir","pitch","roofElements","roofDetail",
                "finalMove","finalTraffic","finalLighting","finalAtmos","finalClean",
                "anchor","finalRefNotes"];
-  const st = { v:"8.1.42a", inputs:{}, pins:[], presetKey:null };
+  const st = { v:"8.142", inputs:{}, pins:[], presetKey:null };
   ids.forEach(id=>{
     const el = $(id);
     if(!el) return;
@@ -882,8 +889,7 @@ function generate(){
 - terrain reshaping, seasonal change
 - duplicated house, distorted proportions
 - text, watermark, logo, signage
-- shaky camera, zoom, reframe, crop drift`;
-
+- shaky camera, zoom, reframe, crop drift${wall==='bata_merah' ? "\n- exposed rustic brick aesthetic, industrial loft vibe\n- redesigned facade, new windows/doors, changed proportions\n- excessive warm orange color cast overriding scene" : ""}`;
   // Smart Pins (Final reference)
   const pins = Array.from(document.querySelectorAll(".fpPin:checked"))
     .map(c=>"- "+c.parentElement.textContent.trim())
@@ -913,14 +919,18 @@ ${notes ? "NOTES: "+notes : ""}`.trim();
   const STAGE_SPEC = {
     PONDASI: `STAGE SPEC — PONDASI (0–5%):
 - Site preparation only: clearing, leveling, excavation lines, compacted soil.
-- Minimal foundation formwork/rebar starters ONLY (no walls).
+- FOOTPRINT LOCK: trenches and rebar layout must match the EXACT FINAL building footprint and orientation.
+- Show only excavation/footing trenches + rebar cages + small formwork; use simple stakes + string lines to mark the locked footprint.
+- ABSOLUTELY NO vertical walls, NO masonry, NO slab, NO raised floor, NO room walls.
 - Workers visible: ${wc.PONDASI} (controlled, not chaotic).
 - Road MUST be completely clear (no traffic, no parked cars).`,
     EARLY: `STAGE SPEC — EARLY (10–15%):
-- True 10–15% progress from ground up.
-- Starter masonry ONLY: 1–2 brick/block courses below knee height.
-- Columns just beginning (low-mid stub), no dominant slab silhouette.
-- Workers visible: ${wc.EARLY} + 1 small mixer rotating slowly.
+- True 10–15% progress from ground up (do NOT jump ahead).
+- WALL HEIGHT CLAMP: starter masonry ONLY, 1–2 brick/block courses BELOW KNEE HEIGHT (max).
+- NO wall panels, NO room outlines above knee height, NO waist/chest-high walls.
+- Columns just beginning as short starter stubs only; no dominant slab silhouette; NO roof of any kind.
+- Workers visible: ${wc.EARLY} + 1 small mixer rotating slowly (micro-movement only).
+- Allowed progress detail instead of walls: rebar tying, small footing formwork, stacked bricks/pallets, wheelbarrows, hand tools.
 - Road MUST be completely clear (no traffic).`,
     MID: `STAGE SPEC — MID-NS (40–45%):
 - True 40–45% progress, non-structural visual priority.
@@ -976,6 +986,7 @@ ${DUST_THIN_3STAGE}
 TOOLS / SITE:
 - Wall material: ${wall}
 - Tool set: ${TOOL_NOTES[tool] || TOOL_NOTES.default}
+${wall==='bata_merah' ? BRICK_ANTI_DRIFT_LOCK : ''}
 ${LANDSCAPE_IMMUTABILITY_LOCK}
 ${WORKER_BEHAVIOR_CLAMP}
 ${FINAL_PURITY_LOCK}
@@ -1091,12 +1102,12 @@ STAGE: ${stage}`.trim();
   $("photoFinal").textContent   = buildStagePrompt("FINAL","photo");
 
   
-  $("photoMaster").textContent  = buildStagePrompt("FINAL","photo") + "
+  $("photoMaster").textContent  = buildStagePrompt("FINAL","photo") + `
 
 MASTER FINAL PHOTO OVERRIDE:
 - Use strongest landmark lock and pristine luxury finish.
 - ZERO workers, ZERO tools, ZERO dust.
-- No traffic unless explicitly requested for video only.";
+- No traffic unless explicitly requested for video only.`;
 // VIDEO
   const vP = buildStagePrompt("PONDASI","video");
   const vE = buildStagePrompt("EARLY","video");
