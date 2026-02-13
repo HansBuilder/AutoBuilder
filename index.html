@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Construction Auto Builder — V8.142 (Master Auto-Inject • Autosave • Export Pack • Polish)</title>
+<title>Construction Auto Builder — V8.2 (Master Auto-Inject • Autosave • Export Pack • Polish)</title>
 
 <style>
 :root{
@@ -178,11 +178,11 @@ pre, .outPre{word-break:break-word}
 <body>
 <div class="wrap">
   <h1 class="titlebar">
-    <span class="titleleft">Construction Auto Builder <span class="badge vio">V8.142</span></span>
+    <span class="titleleft">Construction Auto Builder <span class="badge vio">V8.2</span></span>
     <button class="btn-reset-header" id="resetAllBtn" type="button"><span data-i18n="btn_reset">Reset</span></button>
   </h1>
   <small>
-    V8.142:
+    V8.2:
     (1) Hard Enforcement + 5D Video.
     (2) Master Standard Auto‑Inject (no preset needed).
     (3) Autosave (LocalStorage) + Export Pack.
@@ -520,7 +520,7 @@ pre, .outPre{word-break:break-word}
     <pre id="auditLog" class="logpre"></pre>
   </div>
 
-  <div class="footer">V8.142 — Nuclear Lock (Landscape + Worker Clamp + Final Purity)</div>
+  <div class="footer">V8.2 — Nuclear Lock (Landscape + Worker Clamp + Final Purity)</div>
 </div>
 
 <script>
@@ -726,8 +726,8 @@ async function copyText(id){
 }
 
 
-/* ===== Autosave (LocalStorage) + Export Pack (V8.142) ===== */
-const LS_KEY = "CAB_V8_142_STATE";
+/* ===== Autosave (LocalStorage) + Export Pack (V8.2) ===== */
+const LS_KEY = "CAB_V8_2_STATE";
 const LS_KEY_OLD = "CAB_V8_1_40_STATE";
 const LS_KEY_OLD2 = "CAB_V8_1_42_STATE";
 const LS_KEY_OLD3 = "CAB_V8_1_41_STATE";
@@ -737,7 +737,7 @@ function collectState(){
                "roofModel","roofMaterial","ridgeDir","pitch","roofElements","roofDetail",
                "finalMove","finalTraffic","finalLighting","finalAtmos","finalClean",
                "anchor","finalRefNotes"];
-  const st = { v:"8.142", inputs:{}, pins:[], presetKey:null };
+  const st = { v:"8.2", inputs:{}, pins:[], presetKey:null };
   ids.forEach(id=>{
     const el = $(id);
     if(!el) return;
